@@ -1,0 +1,61 @@
+#!/bin/sh
+
+start () {
+    echo -n "Starting hithere..."
+
+    # Start daemon
+    daemon --command "/usr/local/bin/hithere" --respawn --output=/var/log/hithere.log --name=hithere --verbose
+
+    RETVAL=$?
+    if [ $RETVAL = 0 ]
+    then
+        echo "done."
+    else
+        echo "hithere failed. See error code for more information."
+    fi
+    return $RETVAL
+}
+
+stop () {
+    # Stop daemon
+    echo -n "Stopping hithere..."
+
+    daemon --stop --name=hithere  --verbose
+    RETVAL=$?
+
+    if [ $RETVAL = 0 ]
+    then
+        echo "Done."
+    else
+        echo "Failed. See error code for more information."
+    fi
+    return $RETVAL
+}
+
+status () {
+    # Report on the status of the daemon
+    daemon --running --verbose --name=hithere
+    return $?
+}
+
+case "$1" in
+    start)
+        start
+    ;;
+    status)
+        status
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        stop
+        start
+    ;;
+    *)
+        echo $"Usage: hithere {start|status|stop|restart}"
+        exit 3
+    ;;
+esac
+
+exit $RETVAL
